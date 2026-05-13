@@ -16,8 +16,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException ex) {
+        String mensagem = ex.getMessage() != null ? ex.getMessage() : "Erro interno";
         return ResponseEntity.badRequest()
-                .body(Map.of("erro", ex.getMessage()));
+                .body(Map.of("erro", mensagem));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,6 +31,12 @@ public class ObraController {
     @PostMapping
     public ResponseEntity<ObraResponse> criar(@Valid @RequestBody ObraRequest request) {
         return ResponseEntity.status(201).body(obraService.criar(request));
+    }
+
+    @PostMapping("/{id}/imagem")
+    public ResponseEntity<ObraResponse> uploadImagem(@PathVariable Integer id,
+                                                    @RequestParam("arquivo") MultipartFile arquivo) {
+        return ResponseEntity.ok(obraService.uploadImagem(id, arquivo));
     }
 
     @PutMapping("/{id}")

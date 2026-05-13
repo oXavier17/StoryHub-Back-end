@@ -30,6 +30,9 @@ public class Obra {
     @Enumerated(EnumType.ORDINAL)
     private TipoObra tipo;
 
+    @Column(length = 500)
+    private String imagemUrl;
+
     @Column(length = 100)
     private String autor;
 

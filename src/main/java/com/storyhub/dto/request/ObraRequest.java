@@ -21,6 +21,9 @@ public class ObraRequest {
     @NotNull
     private TipoObra tipo;
 
+    @Size(max = 500)
+    private String imagemUrl;
+
     @Size(max = 100)
     private String autor;
 

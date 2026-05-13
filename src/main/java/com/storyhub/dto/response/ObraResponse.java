@@ -11,6 +11,7 @@ public class ObraResponse {
     private String titulo;
     private String descricao;
     private TipoObra tipo;
+    private String imagemUrl;
     private String autor;
     private String estudio;
     private List<String> generos;
