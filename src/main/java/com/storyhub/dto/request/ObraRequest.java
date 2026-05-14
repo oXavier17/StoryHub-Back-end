@@ -1,5 +1,6 @@
 package com.storyhub.dto.request;
 
+import com.storyhub.enums.Genero;
 import com.storyhub.enums.TipoObra;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,5 +31,5 @@ public class ObraRequest {
     @Size(max = 100)
     private String estudio;
 
-    private List<Integer> generoIds;
+    private List<Genero> generos;
 }

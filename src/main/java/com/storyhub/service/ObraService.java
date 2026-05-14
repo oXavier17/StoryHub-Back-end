@@ -2,10 +2,8 @@ package com.storyhub.service;
 
 import com.storyhub.dto.request.ObraRequest;
 import com.storyhub.dto.response.ObraResponse;
-import com.storyhub.entity.Genero;
 import com.storyhub.entity.Obra;
 import com.storyhub.exception.ResourceNotFoundException;
-import com.storyhub.repository.GeneroRepository;
 import com.storyhub.repository.ObraRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,25 +24,9 @@ import java.util.List;
 public class ObraService {
 
     private final ObraRepository obraRepository;
-    private final GeneroRepository generoRepository;
 
     @Value("${upload.dir}")
     private String uploadDir;
-
-    public String salvarImagem(MultipartFile arquivo) {
-        try {
-            Path pasta = Paths.get(uploadDir);
-            if (!Files.exists(pasta)) Files.createDirectories(pasta);
-
-            String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
-            Path destino = pasta.resolve(nomeArquivo);
-            Files.copy(arquivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
-
-            return "/" + uploadDir + "/" + nomeArquivo;
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao salvar imagem");
-        }
-    }
 
     public List<ObraResponse> listar() {
         return obraRepository.findAll()
@@ -59,13 +41,26 @@ public class ObraService {
         return toResponse(obra);
     }
 
-    public ObraResponse criar(ObraRequest request) {
+    public ObraResponse criar(ObraRequest request, MultipartFile imagem) {
         if (obraRepository.existsByTituloIgnoreCase(request.getTitulo())) {
             throw new RuntimeException("Já existe uma obra com esse título");
         }
 
         Obra obra = toEntity(request);
-        return toResponse(obraRepository.save(obra));
+        obra = obraRepository.save(obra);
+
+        if (imagem != null && !imagem.isEmpty()) {
+            try {
+                String caminho = salvarImagem(imagem);
+                obra.setImagemUrl(caminho);
+                obra = obraRepository.save(obra);
+            } catch (Exception e) {
+                obraRepository.delete(obra); // rollback manual
+                throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
+            }
+        }
+
+        return toResponse(obra);
     }
 
     public ObraResponse atualizar(Integer id, ObraRequest request) {
@@ -78,7 +73,7 @@ public class ObraService {
         obra.setImagemUrl(request.getImagemUrl());
         obra.setAutor(request.getAutor());
         obra.setEstudio(request.getEstudio());
-        obra.setGeneros(buscarGeneros(request.getGeneroIds()));
+        obra.setGeneros(request.getGeneros() != null ? new ArrayList<>(request.getGeneros()) : new ArrayList<>());
 
         return toResponse(obraRepository.save(obra));
     }
@@ -100,7 +95,7 @@ public class ObraService {
         obra.setImagemUrl(request.getImagemUrl());
         obra.setAutor(request.getAutor());
         obra.setEstudio(request.getEstudio());
-        obra.setGeneros(buscarGeneros(request.getGeneroIds()));
+        obra.setGeneros(request.getGeneros() != null ? request.getGeneros() : new ArrayList<>());
         return obra;
     }
 
@@ -113,26 +108,27 @@ public class ObraService {
         response.setImagemUrl(obra.getImagemUrl());
         response.setAutor(obra.getAutor());
         response.setEstudio(obra.getEstudio());
-        response.setGeneros(
-            obra.getGeneros() == null ? List.of() :
-            obra.getGeneros().stream().map(Genero::getNome).toList()
-        );
+        response.setGeneros(obra.getGeneros() == null ? List.of() : obra.getGeneros());
         return response;
     }
 
-    private List<Genero> buscarGeneros(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return new ArrayList<>();
-        return new ArrayList<>(generoRepository.findAllById(ids));
+    public String salvarImagem(MultipartFile arquivo) {
+        try {
+            Path pasta = Paths.get(uploadDir);
+            if (!Files.exists(pasta)) Files.createDirectories(pasta);
+            String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
+            Path destino = pasta.resolve(nomeArquivo);
+            Files.copy(arquivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+            return "/" + uploadDir + "/" + nomeArquivo;
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao salvar imagem");
+        }
     }
 
     public ObraResponse uploadImagem(Integer id, MultipartFile arquivo) {
         Obra obra = obraRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Obra não encontrada"));
-
-        String caminho = salvarImagem(arquivo);
-        obra.setImagemUrl(caminho);
-
+        obra.setImagemUrl(salvarImagem(arquivo));
         return toResponse(obraRepository.save(obra));
     }
-    
 }

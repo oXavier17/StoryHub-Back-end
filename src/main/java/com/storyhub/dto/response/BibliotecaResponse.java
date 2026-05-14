@@ -2,6 +2,7 @@ package com.storyhub.dto.response;
 
 import java.util.List;
 
+import com.storyhub.enums.Genero;
 import com.storyhub.enums.StatusBiblioteca;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class BibliotecaResponse {
     private String tituloObra;
     private String tipoObra;
     private String imagemUrl;
-    private List<String> generos;
+    private List<Genero> generos;
     private StatusBiblioteca status;
     private Integer progressoAtual;
     private Integer totalUnidade;

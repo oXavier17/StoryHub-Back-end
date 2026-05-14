@@ -3,7 +3,6 @@ package com.storyhub.service;
 import com.storyhub.dto.request.BibliotecaRequest;
 import com.storyhub.dto.response.BibliotecaResponse;
 import com.storyhub.entity.Biblioteca;
-import com.storyhub.entity.Genero;
 import com.storyhub.entity.Obra;
 import com.storyhub.entity.Usuario;
 import com.storyhub.exception.ResourceNotFoundException;
@@ -105,7 +104,7 @@ public class BibliotecaService {
         response.setFavorito(biblioteca.getFavorito());
         response.setGeneros(
             biblioteca.getObra().getGeneros() == null ? List.of() :
-            biblioteca.getObra().getGeneros().stream().map(Genero::getNome).toList()
+            biblioteca.getObra().getGeneros()
         );
         return response;
     }

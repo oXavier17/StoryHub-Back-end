@@ -1,5 +1,6 @@
 package com.storyhub.dto.response;
 
+import com.storyhub.enums.Genero;
 import com.storyhub.enums.TipoObra;
 import lombok.Data;
 
@@ -14,5 +15,5 @@ public class ObraResponse {
     private String imagemUrl;
     private String autor;
     private String estudio;
-    private List<String> generos;
+    private List<Genero> generos;
 }

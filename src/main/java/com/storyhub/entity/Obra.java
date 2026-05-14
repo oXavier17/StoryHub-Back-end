@@ -1,7 +1,10 @@
 package com.storyhub.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.storyhub.enums.Genero;
 import com.storyhub.enums.TipoObra;
+
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,13 +42,14 @@ public class Obra {
     @Column(length = 100)
     private String estudio;
 
-    @ManyToMany
-    @JoinTable(
+    @ElementCollection
+    @CollectionTable(
         name = "ObraGenero",
-        joinColumns = @JoinColumn(name = "obraId"),
-        inverseJoinColumns = @JoinColumn(name = "generoId")
+        joinColumns = @JoinColumn(name = "obraId")
     )
-    private List<Genero> generos;
+    @Column(name = "generoId")
+    @Enumerated(EnumType.ORDINAL)
+    private List<Genero> generos = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL)
     @JsonIgnore

@@ -1,5 +1,6 @@
 package com.storyhub.controller;
 
+import com.storyhub.dto.request.CriarVolumesLoteRequest;
 import com.storyhub.dto.request.VolumeRequest;
 import com.storyhub.dto.response.VolumeResponse;
 import com.storyhub.service.VolumeService;
@@ -30,6 +31,11 @@ public class VolumeController {
     @PostMapping
     public ResponseEntity<VolumeResponse> criar(@Valid @RequestBody VolumeRequest request) {
         return ResponseEntity.status(201).body(volumeService.criar(request));
+    }
+
+    @PostMapping("/lote")
+    public ResponseEntity<List<VolumeResponse>> criarLote(@RequestBody CriarVolumesLoteRequest request) {
+        return ResponseEntity.status(201).body(volumeService.criarLote(request));
     }
 
     @PutMapping("/{id}")

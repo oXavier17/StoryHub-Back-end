@@ -1,5 +1,6 @@
 package com.storyhub.service;
 
+import com.storyhub.dto.request.CriarVolumesLoteRequest;
 import com.storyhub.dto.request.VolumeRequest;
 import com.storyhub.dto.response.VolumeResponse;
 import com.storyhub.entity.Obra;
@@ -10,6 +11,7 @@ import com.storyhub.repository.VolumeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -83,5 +85,32 @@ public class VolumeService {
         response.setIsbn(volume.getIsbn());
         response.setDataLancamento(volume.getDataLancamento());
         return response;
+    }
+
+    public List<VolumeResponse> criarLote(CriarVolumesLoteRequest request) {
+        Obra obra = obraRepository.findById(request.getObraId())
+                .orElseThrow(() -> new ResourceNotFoundException("Obra não encontrada"));
+
+        // descobre o maior volume já existente para continuar de onde parou
+        List<Volume> existentes = volumeRepository
+                .findByObra_IdObraOrderByNumeroVolumeAsc(request.getObraId());
+
+        int inicio = existentes.isEmpty() ? 1 :
+                existentes.get(existentes.size() - 1).getNumeroVolume() + 1;
+
+        List<Volume> novos = new ArrayList<>();
+        for (int i = inicio; i < inicio + request.getQuantidade(); i++) {
+            if (!volumeRepository.existsByObra_IdObraAndNumeroVolume(request.getObraId(), i)) {
+                Volume v = new Volume();
+                v.setObra(obra);
+                v.setNumeroVolume(i);
+                novos.add(v);
+            }
+        }
+
+        return volumeRepository.saveAll(novos)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 }
