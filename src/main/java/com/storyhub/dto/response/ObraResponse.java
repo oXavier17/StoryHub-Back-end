@@ -11,6 +11,7 @@ public class ObraResponse {
     private Integer idObra;
     private String titulo;
     private String descricao;
+    private Integer totalUnidade;
     private TipoObra tipo;
     private String imagemUrl;
     private String autor;

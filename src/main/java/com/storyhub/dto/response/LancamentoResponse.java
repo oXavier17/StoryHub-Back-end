@@ -13,4 +13,6 @@ public class LancamentoResponse {
     private Integer diaSemana;
     private Integer diaMes;
     private LocalTime horarioLancamento;
+    private String imagemUrl;
+    private String tipoObra;
 }

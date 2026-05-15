@@ -23,11 +23,19 @@ public class Obra {
     @Column(name = "idObra")
     private Integer idObra;
 
+    @ManyToOne
+    @JoinColumn(name = "usuarioId", nullable = false)
+    @JsonIgnore
+    private Usuario usuario;
+
     @Column(nullable = false, length = 100)
     private String titulo;
 
-    @Column(nullable = false, columnDefinition = "varchar(max)")
+    @Column(columnDefinition = "varchar(max)")
     private String descricao;
+
+    @Column(nullable = false, name = "totalUnidade")
+    private Integer totalUnidade;
 
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)

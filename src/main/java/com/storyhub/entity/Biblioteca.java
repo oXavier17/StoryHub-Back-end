@@ -2,6 +2,8 @@ package com.storyhub.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.storyhub.enums.StatusBiblioteca;
+
+import java.math.BigDecimal;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,13 +35,15 @@ public class Biblioteca {
     private StatusBiblioteca status;
 
     @Column(nullable = false)
-    private Integer progressoAtual;
+    private Boolean emLancamento;
 
-    @Column(nullable = false, name = "totalUnidade")
-    private Integer totalUnidade;
+    @Column(nullable = false)
+    private Integer progressoAtual;
 
     @Column(nullable = false)
     private Boolean favorito;
+
+    private BigDecimal nota;
 
     @OneToMany(mappedBy = "biblioteca", cascade = CascadeType.ALL)
     @JsonIgnore

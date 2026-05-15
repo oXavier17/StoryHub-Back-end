@@ -2,9 +2,16 @@ package com.storyhub.service;
 
 import com.storyhub.dto.request.ObraRequest;
 import com.storyhub.dto.response.ObraResponse;
+import com.storyhub.entity.Biblioteca;
 import com.storyhub.entity.Obra;
+import com.storyhub.entity.Usuario;
+import com.storyhub.enums.StatusBiblioteca;
 import com.storyhub.exception.ResourceNotFoundException;
+import com.storyhub.repository.BibliotecaRepository;
 import com.storyhub.repository.ObraRepository;
+import com.storyhub.security.AuthUtil;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,12 +31,15 @@ import java.util.List;
 public class ObraService {
 
     private final ObraRepository obraRepository;
+    private final AuthUtil authUtil;
+    private final BibliotecaRepository bibliotecaRepository;
 
     @Value("${upload.dir}")
     private String uploadDir;
 
     public List<ObraResponse> listar() {
-        return obraRepository.findAll()
+        Usuario usuario = authUtil.getUsuarioAutenticado();
+        return obraRepository.findByUsuario_IdUsuario(usuario.getIdUsuario())
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -42,11 +52,15 @@ public class ObraService {
     }
 
     public ObraResponse criar(ObraRequest request, MultipartFile imagem) {
-        if (obraRepository.existsByTituloIgnoreCase(request.getTitulo())) {
-            throw new RuntimeException("Já existe uma obra com esse título");
+        Usuario usuario = authUtil.getUsuarioAutenticado();
+
+        if (obraRepository.existsByTituloIgnoreCaseAndTipoAndUsuario_IdUsuario(
+                request.getTitulo(), request.getTipo(), usuario.getIdUsuario())) {
+            throw new RuntimeException("Você já tem uma obra com esse título e tipo");
         }
 
         Obra obra = toEntity(request);
+        obra.setUsuario(usuario);
         obra = obraRepository.save(obra);
 
         if (imagem != null && !imagem.isEmpty()) {
@@ -55,7 +69,7 @@ public class ObraService {
                 obra.setImagemUrl(caminho);
                 obra = obraRepository.save(obra);
             } catch (Exception e) {
-                obraRepository.delete(obra); // rollback manual
+                obraRepository.delete(obra);
                 throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
             }
         }
@@ -63,9 +77,11 @@ public class ObraService {
         return toResponse(obra);
     }
 
+    @Transactional
     public ObraResponse atualizar(Integer id, ObraRequest request) {
-        Obra obra = obraRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Obra não encontrada"));
+        Obra obra = buscarObraDoUsuario(id);
+
+        Integer totalAnterior = obra.getTotalUnidade();
 
         obra.setTitulo(request.getTitulo());
         obra.setDescricao(request.getDescricao());
@@ -73,16 +89,48 @@ public class ObraService {
         obra.setImagemUrl(request.getImagemUrl());
         obra.setAutor(request.getAutor());
         obra.setEstudio(request.getEstudio());
-        obra.setGeneros(request.getGeneros() != null ? new ArrayList<>(request.getGeneros()) : new ArrayList<>());
+        obra.setTotalUnidade(request.getTotalUnidade());
+        obra.setGeneros(request.getGeneros() != null
+                ? new ArrayList<>(request.getGeneros()) : new ArrayList<>());
 
-        return toResponse(obraRepository.save(obra));
+        obra = obraRepository.save(obra);
+
+        // se o total mudou, recalcula status das bibliotecas afetadas
+        if (!Objects.equals(totalAnterior, request.getTotalUnidade())) {
+            atualizarStatusBibliotecas(obra);
+        }
+
+        return toResponse(obra);
+    }
+
+    private void atualizarStatusBibliotecas(Obra obra) {
+        List<Biblioteca> bibliotecas = bibliotecaRepository.findByObra_IdObra(obra.getIdObra());
+        for (Biblioteca bib : bibliotecas) {
+            if (bib.getStatus() == StatusBiblioteca.ABANDONADO) continue;
+
+            int total    = obra.getTotalUnidade();
+            int progresso = bib.getProgressoAtual();
+
+            // progresso maior que o novo total — ajusta
+            if (total > 0 && progresso > total) {
+                bib.setProgressoAtual(total);
+            }
+
+            // recalcula status
+            if (total > 0 && bib.getProgressoAtual() >= total && !Boolean.TRUE.equals(bib.getEmLancamento())) {
+                bib.setStatus(StatusBiblioteca.COMPLETO);
+            } else if (bib.getStatus() == StatusBiblioteca.COMPLETO) {
+                // estava completo mas o total aumentou — volta para acompanhando
+                bib.setStatus(StatusBiblioteca.ACOMPANHANDO);
+                bib.setEmLancamento(false);
+            }
+        }
+        bibliotecaRepository.saveAll(bibliotecas);
     }
 
     public void deletar(Integer id) {
-        if (!obraRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Obra não encontrada");
-        }
-        obraRepository.deleteById(id);
+        Obra obra = buscarObraDoUsuario(id);
+        obraRepository.delete(obra);
     }
 
     // --- Helpers ---
@@ -95,7 +143,9 @@ public class ObraService {
         obra.setImagemUrl(request.getImagemUrl());
         obra.setAutor(request.getAutor());
         obra.setEstudio(request.getEstudio());
-        obra.setGeneros(request.getGeneros() != null ? request.getGeneros() : new ArrayList<>());
+        obra.setTotalUnidade(request.getTotalUnidade());
+        obra.setGeneros(request.getGeneros() != null
+                ? new ArrayList<>(request.getGeneros()) : new ArrayList<>());
         return obra;
     }
 
@@ -108,6 +158,7 @@ public class ObraService {
         response.setImagemUrl(obra.getImagemUrl());
         response.setAutor(obra.getAutor());
         response.setEstudio(obra.getEstudio());
+        response.setTotalUnidade(obra.getTotalUnidade());
         response.setGeneros(obra.getGeneros() == null ? List.of() : obra.getGeneros());
         return response;
     }
@@ -130,5 +181,15 @@ public class ObraService {
                 .orElseThrow(() -> new ResourceNotFoundException("Obra não encontrada"));
         obra.setImagemUrl(salvarImagem(arquivo));
         return toResponse(obraRepository.save(obra));
+    }
+    
+    private Obra buscarObraDoUsuario(Integer id) {
+        Usuario usuario = authUtil.getUsuarioAutenticado();
+        Obra obra = obraRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Obra não encontrada"));
+        if (!obra.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())) {
+            throw new RuntimeException("Acesso negado");
+        }
+        return obra;
     }
 }

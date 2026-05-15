@@ -1,5 +1,6 @@
 package com.storyhub.dto.response;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.storyhub.enums.Genero;
@@ -16,6 +17,8 @@ public class BibliotecaResponse {
     private List<Genero> generos;
     private StatusBiblioteca status;
     private Integer progressoAtual;
-    private Integer totalUnidade;
+    private Integer totalUnidade; 
+    private Boolean emLancamento;
     private Boolean favorito;
+    private BigDecimal nota;
 }

@@ -98,6 +98,7 @@ public class ColecaoUsuarioService {
         response.setVolumeId(colecao.getVolume().getIdVolume());
         response.setTituloObra(colecao.getVolume().getObra().getTitulo());
         response.setNumeroVolume(colecao.getVolume().getNumeroVolume());
+        response.setImagemUrl(colecao.getVolume().getObra().getImagemUrl());
         response.setPossui(colecao.getPossui());
         response.setLido(colecao.getLido());
         response.setDataCompra(colecao.getDataCompra());

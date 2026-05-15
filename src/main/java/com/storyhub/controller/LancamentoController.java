@@ -27,6 +27,11 @@ public class LancamentoController {
         return ResponseEntity.ok(lancamentoService.buscarPorObra(obraId));
     }
 
+    @GetMapping("/meus")
+    public ResponseEntity<List<LancamentoResponse>> listarMeus() {
+        return ResponseEntity.ok(lancamentoService.listarDoUsuario());
+    }
+
     @PostMapping
     public ResponseEntity<LancamentoResponse> criar(@Valid @RequestBody LancamentoRequest request) {
         return ResponseEntity.status(201).body(lancamentoService.criar(request));

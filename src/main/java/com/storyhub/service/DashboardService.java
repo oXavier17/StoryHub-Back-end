@@ -45,7 +45,6 @@ public class DashboardService {
         response.setImagemUrl(biblioteca.getObra().getImagemUrl());
         response.setStatus(biblioteca.getStatus());
         response.setProgressoAtual(biblioteca.getProgressoAtual());
-        response.setTotalUnidade(biblioteca.getTotalUnidade());
         response.setFavorito(biblioteca.getFavorito());
         return response;
     }

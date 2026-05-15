@@ -16,4 +16,5 @@ public interface BibliotecaRepository extends JpaRepository<Biblioteca, Integer>
     long countByUsuario_IdUsuarioAndStatus(Integer usuarioId, StatusBiblioteca status);
     long countByUsuario_IdUsuarioAndFavoritoTrue(Integer usuarioId);
     List<Biblioteca> findTop5ByUsuario_IdUsuarioOrderByIdBibliotecaDesc(Integer usuarioId);
+    List<Biblioteca> findByObra_IdObra(Integer obraId);
 }

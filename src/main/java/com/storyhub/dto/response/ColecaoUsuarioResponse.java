@@ -11,6 +11,7 @@ public class ColecaoUsuarioResponse {
     private Integer volumeId;
     private String tituloObra;
     private Integer numeroVolume;
+    private String imagemUrl;
     private Boolean possui;
     private Boolean lido;
     private LocalDate dataCompra;

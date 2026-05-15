@@ -16,8 +16,10 @@ public class ObraRequest {
     @Size(max = 100)
     private String titulo;
 
-    @NotBlank
     private String descricao;
+
+    @NotNull
+    private Integer totalUnidade;
 
     @NotNull
     private TipoObra tipo;

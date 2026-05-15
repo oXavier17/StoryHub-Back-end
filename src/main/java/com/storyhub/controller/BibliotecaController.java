@@ -38,6 +38,11 @@ public class BibliotecaController {
         return ResponseEntity.ok(bibliotecaService.atualizar(id, request));
     }
 
+    @PatchMapping("/{id}/incrementar")
+    public ResponseEntity<BibliotecaResponse> incrementar(@PathVariable Integer id) {
+        return ResponseEntity.ok(bibliotecaService.incrementarProgresso(id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         bibliotecaService.deletar(id);

@@ -1,5 +1,7 @@
 package com.storyhub.dto.request;
 
+import java.math.BigDecimal;
+
 import com.storyhub.enums.StatusBiblioteca;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -15,13 +17,14 @@ public class BibliotecaRequest {
     private StatusBiblioteca status;
 
     @NotNull
+    private Boolean emLancamento;
+
+    @NotNull
     @Min(0)
     private Integer progressoAtual;
 
     @NotNull
-    @Min(0)
-    private Integer totalUnidade;
-
-    @NotNull
     private Boolean favorito;
+
+    private BigDecimal nota;
 }
