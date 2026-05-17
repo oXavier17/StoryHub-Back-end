@@ -17,16 +17,10 @@ public class CorsConfig {
         config.setAllowCredentials(true);
 
         config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("https://storyhubfrontend.vercel.app");
+        config.addAllowedOrigin("https://story-hub-front-end.vercel.app");
 
         config.addAllowedHeader("*");
-
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("PATCH");
-        config.addAllowedMethod("OPTIONS");
+        config.addAllowedMethod("*");
 
         config.addExposedHeader("Authorization");
 
