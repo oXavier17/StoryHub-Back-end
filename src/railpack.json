@@ -1,0 +1,7 @@
+{
+    "builder": {
+        "java": {
+            "mavenVersion": "3.9.15"
+        }
+    }
+}
