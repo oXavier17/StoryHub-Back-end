@@ -11,21 +11,28 @@ public class CorsConfig {
 
     @Bean
     public CorsFilter corsFilter() {
+
         CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true);
+
         config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("https://storyhubfrontend.vercel.app");
+
+        config.addAllowedHeader("*");
+
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
         config.addAllowedMethod("PUT");
         config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("OPTIONS");
         config.addAllowedMethod("PATCH");
-        config.addAllowedHeader("*");
-        config.setAllowCredentials(true);
-        config.addExposedHeader("Authorization");
-        config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("https://storyubfrontend.vercel.app");
+        config.addAllowedMethod("OPTIONS");
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        config.addExposedHeader("Authorization");
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", config);
 
         return new CorsFilter(source);
