@@ -22,6 +22,8 @@ public class CorsConfig {
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
         config.addExposedHeader("Authorization");
+        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("https://storyhub-back-end-production.up.railway.app");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
