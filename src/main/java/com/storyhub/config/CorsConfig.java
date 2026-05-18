@@ -17,7 +17,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
 
         config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("https://storyhub.vercel.app");
+        config.addAllowedOrigin("https://my-storyhub.vercel.app");
 
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
