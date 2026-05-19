@@ -15,5 +15,7 @@ public enum Genero {
     SUSPENSE,
     ESPORTE,
     HISTORICO,
-    PSICOLOGICO
+    PSICOLOGICO,
+    ESCOLAR,
+    ISEKAI
 }
