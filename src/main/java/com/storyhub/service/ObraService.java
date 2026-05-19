@@ -38,11 +38,10 @@ public class ObraService {
     private String uploadDir;
 
     public List<ObraResponse> listar() {
-        Usuario usuario = authUtil.getUsuarioAutenticado();
-        return obraRepository.findByUsuario_IdUsuario(usuario.getIdUsuario())
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return obraRepository.findAll()
+            .stream()
+            .map(this::toResponse)
+            .toList();
     }
 
     public ObraResponse buscarPorId(Integer id) {
