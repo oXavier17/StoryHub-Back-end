@@ -14,7 +14,7 @@ public enum Genero {
     SOBRENATURAL,
     SUSPENSE,
     ESPORTE,
-    HISTORICO,
+    POLICIAL,
     PSICOLOGICO,
     ESCOLAR,
     ISEKAI
