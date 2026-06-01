@@ -34,11 +34,9 @@ public class ObraController {
         return ResponseEntity.ok(List.of(Genero.values()));
     }
 
-    @PostMapping(consumes = { "multipart/form-data" })
-    public ResponseEntity<ObraResponse> criar(
-            @RequestPart("dados") @Valid ObraRequest request,
-            @RequestPart(value = "arquivo", required = false) MultipartFile arquivo) {
-        return ResponseEntity.status(201).body(obraService.criar(request, arquivo));
+    @PostMapping
+    public ResponseEntity<ObraResponse> criar(@Valid @RequestBody ObraRequest request) {
+        return ResponseEntity.status(201).body(obraService.criar(request));
     }
 
     @PostMapping("/{id}/imagem")

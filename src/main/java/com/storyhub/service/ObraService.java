@@ -50,30 +50,18 @@ public class ObraService {
         return toResponse(obra);
     }
 
-    public ObraResponse criar(ObraRequest request, MultipartFile imagem) {
+    public ObraResponse criar(ObraRequest request) {
         Usuario usuario = authUtil.getUsuarioAutenticado();
 
-        if (obraRepository.existsByTituloIgnoreCaseAndTipoAndUsuario_IdUsuario(
-                request.getTitulo(), request.getTipo(), usuario.getIdUsuario())) {
-            throw new RuntimeException("Você já tem uma obra com esse título e tipo");
+        if (obraRepository.existsByTituloIgnoreCaseAndTipo(
+                request.getTitulo(), request.getTipo())) {
+            throw new RuntimeException("Já existe uma obra com esse título e tipo");
         }
 
         Obra obra = toEntity(request);
         obra.setUsuario(usuario);
-        obra = obraRepository.save(obra);
 
-        if (imagem != null && !imagem.isEmpty()) {
-            try {
-                String caminho = salvarImagem(imagem);
-                obra.setImagemUrl(caminho);
-                obra = obraRepository.save(obra);
-            } catch (Exception e) {
-                obraRepository.delete(obra);
-                throw new RuntimeException("Erro ao salvar imagem: " + e.getMessage());
-            }
-        }
-
-        return toResponse(obra);
+        return toResponse(obraRepository.save(obra));
     }
 
     @Transactional

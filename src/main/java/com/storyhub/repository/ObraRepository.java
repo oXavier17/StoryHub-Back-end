@@ -10,4 +10,5 @@ import java.util.List;
 public interface ObraRepository extends JpaRepository<Obra, Integer> {
     List<Obra> findByUsuario_IdUsuario(Integer usuarioId);
     boolean existsByTituloIgnoreCaseAndTipoAndUsuario_IdUsuario(String titulo, TipoObra tipo, Integer usuarioId);
+    boolean existsByTituloIgnoreCaseAndTipo(String titulo, TipoObra tipo);
 }
